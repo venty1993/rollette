@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="reset.css" />
+    <style>
+      :root {
+        --niddle-color : #222
+      }
+
+      body {
+        background-color: #070e14;
+      }
+
+      header {
+        height: 80px;
+        background-color: #112230;
+        padding: 0 32px;
+        box-sizing: border-box;
+      }
+
+      .header-container {
+        display: flex;
+        align-items: center;
+        height: 100%;
+      }
+
+      .maybe-logo {
+        color: white;
+        font-weight: bold;
+      }
+
+      #game {
+        padding: 0 32px;
+      }
+
+      .container {
+        max-width: 1000px;
+        /* min-height: 600px; */
+        margin: 100px auto;
+        margin-bottom: 200px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 32px;
+        border-radius: 32px;
+        background-color: #2d2453;
+        overflow: hidden;
+      }
+
+
+      h1 {
+        text-align: center;
+        margin-bottom: 32px;
+        color: #fff;
+        font-weight: bold;
+        font-size: 32px;
+      }
+
+      h2 {
+        color: #ebebeb;
+        font-size: 20px;
+        text-align: center;
+        margin-bottom: 16px;
+        font-weight: bold;
+      }
+
+      .game-container {
+        display: flex;
+        gap: 16px;
+        justify-content: space-between;
+      }
+
+      .roll-button {
+        padding: 16px;
+        border-radius: 4px;
+      }
+
+      .result {
+        color: white;
+        text-align: center;
+        margin-bottom: 24px;
+        height: 1rem;
+      }
+
+      button {
+        outline: none;
+        border: none;
+        background-color: white;
+        padding: 4px 32px;
+      }
+
+      .roulette-container {
+        width: 100%;
+      }
+
+
+      .roulette {
+        position: relative;
+
+        width: 100%;
+        aspect-ratio: 1;
+        box-shadow: 1px 1px 2px #6457b1, -1px -1px 2px #beb2ff;
+        border-radius: 50%;
+        background-color: #9582ff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .niddle {
+        width: 20px;
+        height: 20px;
+        background-color: var(--niddle-color);
+        border-radius: 50%;
+        position: absolute;
+        top: 0px;
+        z-index: 100;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .niddle::before {
+        content: '';
+        display: block;
+        position: absolute;
+        width: 0;
+        top: 50%;
+        height: 0;
+        z-index: 100;
+        border: 10px solid transparent;
+        border-top: 40px solid var(--niddle-color);
+      }
+
+      .niddle::after {
+        content: '';
+        width: 10px;
+        height: 10px;
+        border-radius: 10px;
+        background-color: white;
+        position: absolute;
+        z-index: 200;
+
+      }
+
+      .board {
+        width: 90%;
+        height: 90%;
+        border-radius: 50%;
+        background-color: rgb(46, 46, 46);
+        display: flex;
+        justify-content: center;
+        position: relative;
+        align-items: center;
+        font-size: 18px;
+        color: #ebebeb;
+
+
+        /* transform: rotate(180deg); */
+        /* easeOutExpo */
+        /* transition: 4s cubic-bezier(0.16, 1, 0.3, 1); */
+        /* animation: roll 1s linear infinite; */
+      }
+
+      .split {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background-image: conic-gradient(#fff 0deg, #fff 50deg, transparent 50deg );
+        position: absolute;
+        /* display: flex;
+        justify-content: center;
+        align-items: center; */
+        color: #222;
+      }
+
+      .split-lable {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        /* transform: translate(-50%, -50%) rotate(120deg); */
+        transform-origin: center calc(50% + 120px);
+
+      }
+
+      .input-split-container {
+        color: #ddd;
+        text-align: center;
+        width: 100%;
+      }
+
+      .input-split-container input{
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .input-split-container h3 {
+        margin-bottom: 4px;
+      }
+
+      .input-box {
+        display: flex;
+        gap: 8px;
+        justify-content: space-between;
+        align-items: flex-end;
+      }
+
+      input {
+        background-color: #7d68af;
+        padding: 8px;
+        outline: none;
+        border: none;
+        border-radius: 4px;
+        color: white;
+      }
+
+      .add-split-button {
+        flex-shrink: 0;
+        color: #8ee3ee;
+        border: 1px solid #8ee3ee;
+        background-color: transparent;
+        border-radius: 4px;
+        font-weight: bold;
+        height: 32px;
+
+      }
+
+      .pop-modal {
+        width: 100%;
+        height: 100vh;
+        position: fixed;
+        background-color: #00000030;
+        top: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        z-index: -1;
+      }
+
+      .pop-modal-box {
+        width: fit-content;
+        padding: 32px;
+        background-color: #efefef;
+        border-radius: 4px;
+      }
+
+      .pop-modal-text {
+        -webkit-user-select:none;
+        -moz-user-select:none;
+        -ms-user-select:none;
+        user-select:none
+      }
+
+      .input-container {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        width: 100%;
+      }
+
+      .splt-list-container {
+        height: 100%;
+      }
+
+      .split-list {
+        /* overflow-y: auto; */
+        display: flex;
+        gap: 8px;
+        flex-direction: column;
+      }
+
+      .split-list-content {
+        display: flex;
+        width: 100%;
+        gap: 8px;
+      }
+
+      .split-list-content input {
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .split-list-content-name {
+
+      }
+
+      .split-list-content-delete {
+        flex-shrink: 0;
+        border-radius: 4px;
+        background-color: transparent;
+        color: #ff5e5e;
+        border: 1px solid #ff5e5e;
+      }
+
+      footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        height: 100px;
+        background-color: #040505;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 13px;
+      }
+
+      @media screen and (max-width:1000px) {
+        .game-container {
+          flex-direction: column;
+        }
+
+        .roulette {
+          max-width: 360px;
+          margin: 0 auto;
+        }
+
+        .input-box input {
+          width: 100%;
+        }
+      }
+
+      @keyframes roll {
+        0%{
+          transform: rotate(0deg);
+        }
+        100%{
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="header-container">
+        <span class="maybe-logo">개발장난감</span>
+      </div>
+    </header>
+    <section id="game">
+      <div class="container">
+        <h1>돌려돌려 돌림판</h1>
+        <div class="game-container">
+          <div class="roulette-container">
+            <div class="result"></div>
+            <div class="roulette">
+              <div class="niddle"></div>
+              <div class="board">
+                <!-- <div class="split"></div> -->
+                이런! 룰렛이 비어있어요
+              </div>
+            </div>
+          </div>
+          <div class="input-container">
+            <div class="input-box-container">
+              <h2>추가하기</h2>
+              <div class="input-box">
+                <div class="input-split-container">
+                  <h3>항목이름</h3>
+                  <input type="text" class="input-split-name" />
+                </div>
+                <div class="input-split-container">
+                  <h3>값</h3>
+                  <input type="text" class="input-split-value" />
+                </div>
+                <button class="add-split-button">추가</button>
+              </div>
+            </div>
+            <div class="splt-list-container">
+              <h2>항목</h2>
+              <div class="split-list"></div>
+            </div>
+            <button class="roll-button">룰렛 돌리기!</button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <div class="pop-modal">
+      <div class="pop-modal-box">
+        <span class="pop-modal-text">pop modal text</span>
+      </div>
+    </div>
+    <footer>&copy;copyright 2024. SOL all rights reserved.</footer>
+    <script src="popUpModal.js"></script>
+    <script>
+      rollette()
+
+      function rollette() {
+        const result = document.querySelector('.result');
+
+        const addSplitButton = document.querySelector('.add-split-button')
+        const inputName = document.querySelector('.input-split-name');
+        const inputValue = document.querySelector('.input-split-value');
+        const board = document.querySelector('.board');
+        const spinButton = document.querySelector('.roll-button');
+
+        const splitListContentNameGroup = document.getElementsByClassName('split-list-content-name')
+        const splitListContentValueGroup = document.getElementsByClassName('split-list-content-value')
+
+        let spined = false
+        let modifyAble = true;
+        let index = 0;
+
+        inputName.addEventListener('keydown',(e)=>{
+
+
+          if(e.key === 'Enter') {
+            if(inputValue.value){
+              addSplit(inputName.value, parseInt(inputValue.value));
+            }else {
+              inputValue.focus();
+            }
+            }
+        })
+
+        inputValue.addEventListener('keydown',(e)=>{
+          if(e.key === 'Enter') {
+
+
+            addSplit(inputName.value, parseInt(inputValue.value));
+          }
+        })
+
+        spinButton.addEventListener('click', ()=>{
+          spinBoard();
+        })
+
+        addSplitButton.addEventListener('click', ()=>{
+          addSplit(inputName.value, parseInt(inputValue.value));
+        })
+
+        const splits = {
+
+        }
+
+        function easeOutExpo(x) {
+          return x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
+        }
+
+        function spinBoard(){
+          try{
+            if(Object.keys(splits).length === 0 ){
+              throw new Error("항목을 추가해주세요.");
+            }
+
+            if(!spined){
+              spined = true;
+              modifyAble = false;
+
+              const frame = 244;
+              const animationDuration = 4;
+              const finalDeg = Math.random()*360;
+              console.log(finalDeg)
+              board.style.transition = `4s cubic-bezier(0.16, 1, 0.3, 1)`
+              board.style.transform = `rotate(${finalDeg + 3600}deg)`
+              spinButton.innerText = `굴러가는중...`
+              spinButton.setAttribute('disabled',true);
+              console.log(splitListContentValueGroup)
+
+              for(let i = 0 ; i < splitListContentValueGroup.length; i ++) {
+                splitListContentValueGroup[i].setAttribute('disabled',true)
+
+                console.log(splitListContentValueGroup[i])
+                splitListContentNameGroup[i].setAttribute('disabled',true)
+              }
+
+
+              setTimeout(() => {
+                spinButton.innerText = `다시굴리기`
+                spinButton.removeAttribute('disabled')
+                board.style.transition = `none`;
+                modifyAble = true;
+                board.style.transform = `rotate(${finalDeg}deg)`
+                for(let i = 0 ; i < splitListContentValueGroup.length; i ++) {
+                splitListContentValueGroup[i].removeAttribute('disabled')
+
+                console.log(splitListContentValueGroup[i])
+                splitListContentNameGroup[i].removeAttribute('disabled')
+              }
+              }, 4000);
+
+
+
+
+              const totalFrame = frame * animationDuration;
+
+              for(let i = 0 ; i <= frame * animationDuration ; i++){
+                const nowDegree = 360 - (easeOutExpo(i/totalFrame)*(finalDeg+3600))%360;
+                const currentSplit = Object.values(splits).find(split => nowDegree >= split.startDeg && nowDegree <= split.endDeg);
+                setTimeout(() => {
+                  result.innerText = currentSplit.name
+                }, i*1000/frame);
+              }
+
+            }else {
+              spined = false
+              board.style.transition = `1s cubic-bezier(0.16, 1, 0.3, 1)`
+              board.style.transform = `rotate(180deg)`
+              result.innerText = ''
+              spinButton.innerText = `룰렛 돌리기!`
+
+            }
+          }catch(e){
+            popUpModal(e.message);
+            console.log(e)
+          }
+        }
+
+        function addSplit(name, value) {
+          if(modifyAble){
+            try {
+              if(name === '') {
+                throw new Error("항목을 입력해주세요.");
+
+              }
+              if(isNaN(value)){
+                throw new Error("값에는 숫자를 입력해주세요.");
+              }
+              const rgb = [];
+
+              for(let i = 0 ; i < 3; i ++) {
+                rgb.push(parseInt(Math.random()*155)+100)
+              }
+
+              const color = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`
+
+              splits[index++] = {
+              'name' : name,
+              'value' : value,
+              'color' : color
+              };
+              drowingBoard();
+              refreshList();
+              inputName.value = ''
+              inputValue.value = ''
+              inputName.focus();
+              return splits;
+            }catch(e){
+              popUpModal(e.message)
+            }
+          }
+
+        }
+
+        function refreshList() {
+          const list = document.querySelector('.split-list');
+
+          list.innerHTML = ''
+
+          for(const splitName in splits) {
+            const splitListContent = document.createElement('div')
+            splitListContent.classList.add('split-list-content')
+
+            const splitListContentName = document.createElement('input');
+            splitListContentName.classList.add('split-list-content-name');
+            splitListContentName.value = splits[splitName].name;
+
+            const splitListContentValue = document.createElement('input');
+            splitListContentValue.classList.add('split-list-content-value');
+            splitListContentValue.value = splits[splitName].value
+
+            const splitListContentDelete = document.createElement('button')
+            splitListContentDelete.classList.add('split-list-content-delete');
+            splitListContentDelete.innerText = '삭제'
+
+            splitListContentName.addEventListener('change', (e) => {
+              if(modifyAble){
+                splits[splitName].name = e.target.value;
+                drowingBoard()
+              }
+            })
+
+
+            splitListContentValue.addEventListener('change', (e) =>{
+              if(modifyAble){
+                splits[splitName].value = parseInt(e.target.value);
+                drowingBoard();
+              }
+
+            })
+
+            splitListContentDelete.addEventListener('click',()=>{
+              if(modifyAble){
+                delete splits[splitName]
+
+                drowingBoard();
+                refreshList();
+
+                if(Object.keys(splits).length === 0){
+                  spined = false
+                  board.style.transform = `none`
+                  result.innerText = ''
+                  spinButton.innerText = `룰렛 돌리기!`
+                }
+              }
+            })
+
+            splitListContent.appendChild(splitListContentName);
+            splitListContent.appendChild(splitListContentValue);
+            splitListContent.appendChild(splitListContentDelete);
+
+            list.appendChild(splitListContent);
+          }
+        }
+
+
+          for(const splitName in splits) {
+            total += splits[splitName].value;
+          }
+
+
+
+
+
+
+
+
+        function drowingBoard() {
+          let total=0;
+          let acc=0;
+
+          for(const splitName in splits) {
+            total += splits[splitName].value;
+          }
+
+          board.innerHTML = '이런! 룰렛이 비어있어요';
+
+          for(const splitName in splits) {
+
+            const split = splits[splitName]
+            const degree = 360/total*split.value;
+            split.startDeg = acc;
+            split.endDeg = acc + degree
+
+
+
+            board.innerHTML += `<div class='split' style='background-image: conic-gradient(${splits[splitName].color} 0deg, ${splits[splitName].color} ${degree}deg, transparent ${degree}deg); transform: rotate(${acc}deg)'>
+                                <span class='split-lable' style='transform: translate(-50%, calc(-50% - 120px)) rotate(${degree/2}deg);''>${splits[splitName].name}</span>
+                                </div>`
+            acc += degree;
+          }
+          if(board.childElementCount !== 1) {
+            board.style.transform = `rotate(0deg)`
+          }else {
+            board.style.transform = `rotate(180deg)`
+          }
+        }
+
+        function easeOutExpo(x) {
+          return x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
+        }
+      }
+    </script>
+  </body>
+</html>
