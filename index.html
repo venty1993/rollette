@@ -82,8 +82,15 @@
       .result {
         color: white;
         text-align: center;
+        height: 1em;
+      }
+
+      .result-percent {
+        color: white;
+        text-align: center;
+        font-size: 12px;
+        height: 1em;
         margin-bottom: 24px;
-        height: 1rem;
       }
 
       button {
@@ -182,7 +189,10 @@
         position: absolute;
         top: 50%;
         left: 50%;
-
+        text-align: center;
+      }
+      .split-percent {
+        font-size: 12px;
       }
 
       .input-split-container {
@@ -357,6 +367,7 @@
         <div class="game-container">
           <div class="roulette-container">
             <div class="result"></div>
+            <div class="result-percent"></div>
             <div class="roulette">
               <div class="niddle"></div>
               <div class="board">
@@ -401,6 +412,7 @@
 
       function rollette() {
         const result = document.querySelector('.result');
+        const resultPercent = document.querySelector('.result-percent');
 
         const addSplitButton = document.querySelector('.add-split-button')
         const inputName = document.querySelector('.input-split-name');
@@ -502,6 +514,7 @@
                 const currentSplit = Object.values(splits).find(split => nowDegree >= split.startDeg && nowDegree <= split.endDeg);
                 setTimeout(() => {
                   result.innerText = currentSplit.name
+                  resultPercent.innerText = `${currentSplit.percent}%`
                 }, i*1000/frame);
               }
 
@@ -510,6 +523,7 @@
               board.style.transition = `1s cubic-bezier(0.16, 1, 0.3, 1)`
               board.style.transform = `rotate(180deg)`
               result.innerText = ''
+              resultPercent.innerText = ''
               spinButton.innerText = `룰렛 돌리기!`
 
             }
@@ -603,6 +617,7 @@
                   spined = false
                   board.style.transform = `none`
                   result.innerText = ''
+                  resultPercent.innerText = ''
                   spinButton.innerText = `룰렛 돌리기!`
                 }
               }
@@ -641,9 +656,11 @@
           for(const splitName in splits) {
 
             const split = splits[splitName]
+            const percent = split.value/total;
             const degree = 360/total*split.value;
             split.startDeg = acc;
             split.endDeg = acc + degree
+            split.percent = (percent*100).toFixed(2);
 
 
 
@@ -659,11 +676,22 @@
 
             let textPosition = board.clientWidth / 2 * 0.7
 
-            const splitLabelHTML = document.createElement('span');
+
+
+            const splitLabelHTML = document.createElement('div');
             splitLabelHTML.classList.add('split-lable')
             splitLabelHTML.style.transform = `translate(-50%, calc(-50% - ${textPosition}px)) rotate(${degree/2}deg)`
             splitLabelHTML.style.transformOrigin = `center calc(50% + ${textPosition}px)`
-            splitLabelHTML.appendChild(document.createTextNode(splits[splitName].name))
+
+            const splitNameHTML = document.createElement('div')
+            splitNameHTML.classList.add('split-name');
+            splitNameHTML.appendChild(document.createTextNode(`${splits[splitName].name}`))
+
+            const splitPercentHTML = document.createElement('div')
+            splitPercentHTML.classList.add('split-percent');
+            splitPercentHTML.appendChild(document.createTextNode(`(${(split.percent)}%)`))
+
+
 
             let timer = null;
 
@@ -679,6 +707,8 @@
 
             board.appendChild(splitHTML);
             splitHTML.appendChild(splitLabelHTML);
+            splitLabelHTML.appendChild(splitNameHTML);
+            splitLabelHTML.appendChild(splitPercentHTML);
 
 
             acc += degree;
