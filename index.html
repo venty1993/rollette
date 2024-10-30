@@ -182,8 +182,6 @@
         position: absolute;
         top: 50%;
         left: 50%;
-        /* transform: translate(-50%, -50%) rotate(120deg); */
-        transform-origin: center calc(50% + 120px);
 
       }
 
@@ -311,6 +309,18 @@
       }
 
       @media screen and (max-width:1000px) {
+
+        #game {
+          padding: 0px 16px;
+        }
+
+        .container {
+          margin-top: 16px;
+          margin-bottom: 116px;
+          padding: 16px;
+          border-radius: 16px;
+        }
+
         .game-container {
           flex-direction: column;
         }
@@ -454,7 +464,6 @@
               const frame = 244;
               const animationDuration = 4;
               const finalDeg = Math.random()*360;
-              console.log(finalDeg)
               board.style.transition = `4s cubic-bezier(0.16, 1, 0.3, 1)`
               board.style.transform = `rotate(${finalDeg + 3600}deg)`
               spinButton.innerText = `굴러가는중...`
@@ -638,9 +647,40 @@
 
 
 
-            board.innerHTML += `<div class='split' style='background-image: conic-gradient(${splits[splitName].color} 0deg, ${splits[splitName].color} ${degree}deg, transparent ${degree}deg); transform: rotate(${acc}deg)'>
-                                <span class='split-lable' style='transform: translate(-50%, calc(-50% - 120px)) rotate(${degree/2}deg);''>${splits[splitName].name}</span>
-                                </div>`
+            // board.innerHTML +=
+            // `<div class='split' style='background-image: conic-gradient(${splits[splitName].color} 0deg, ${splits[splitName].color} ${degree}deg, transparent ${degree}deg); transform: rotate(${acc}deg)'>
+            //   <span class='split-lable' style='transform: translate(-50%, calc(-50% - 100px)) rotate(${degree/2}deg);''>${splits[splitName].name}</span>
+            // </div>`
+
+            const splitHTML = document.createElement('div');
+            splitHTML.classList.add('split')
+            splitHTML.style.backgroundImage = `conic-gradient(${splits[splitName].color} 0deg, ${splits[splitName].color} ${degree}deg, transparent ${degree}deg)`
+            splitHTML.style.transform = `rotate(${acc}deg)`
+
+            let textPosition = board.clientWidth / 2 * 0.7
+
+            const splitLabelHTML = document.createElement('span');
+            splitLabelHTML.classList.add('split-lable')
+            splitLabelHTML.style.transform = `translate(-50%, calc(-50% - ${textPosition}px)) rotate(${degree/2}deg)`
+            splitLabelHTML.style.transformOrigin = `center calc(50% + ${textPosition}px)`
+            splitLabelHTML.appendChild(document.createTextNode(splits[splitName].name))
+
+            let timer = null;
+
+            window.addEventListener('resize',()=>{
+              clearTimeout(timer);
+              timer = setTimeout(() => {
+                textPosition = board.clientWidth / 2 * 0.7
+                splitLabelHTML.style.transform = `translate(-50%, calc(-50% - ${textPosition}px)) rotate(${degree/2}deg)`
+                splitLabelHTML.style.transformOrigin = `center calc(50% + ${textPosition}px)`
+              }, 50);
+
+            })
+
+            board.appendChild(splitHTML);
+            splitHTML.appendChild(splitLabelHTML);
+
+
             acc += degree;
           }
           if(board.childElementCount !== 1) {
